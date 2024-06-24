@@ -1,0 +1,56 @@
+---
+
+- name: install  the latest version of firewalld,httpd,mariadb-server,php and php-mysqlnd
+  hosts: all
+  become: true
+  tasks:
+     - name: installing various packages
+       dnf:
+         name:
+             - firewalld
+             - httpd
+             - mariadb-server
+             - php
+             - php-mysqlnd
+
+         state: latest
+
+     - name: configuring firewalld
+       firewalld:
+         service: http
+         permanent: true
+         state: enabled
+
+     - name: reload firewall
+       service:
+          name: firewalld
+          state: restarted
+
+     - name: enabling https and mariadb
+       service:
+          name: httpd
+          state: started
+          enabled: yes
+ 
+     - name: enabling mariadb
+       service:
+          name: mariadb
+          state: started
+          enabled: yes
+
+     - name: copying the content
+       get_url:
+          url: http://materials.example.com/labs/playbook-review/index.php
+          dest: /var/www/html
+
+- name: play2
+  hosts: localhost
+  become: no
+  tasks:
+     - name: check for web content
+       uri:
+         url: http://serverb.lab.example.com
+         status_code: 200
+        
+         
+

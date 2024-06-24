@@ -1,0 +1,43 @@
+---
+
+- name: MOTD - Configure Messade of the Day
+  hosts: servers
+  become: true
+  remote_user: devops
+  tasks:
+      - name: verify /etc/motd exist
+        stat: 
+           path: /etc/motd
+        register: motd_stat
+
+      - name: Displaying the File information
+        debug:
+           var: motd_stat
+
+      - name: copying the j2 template to /etc/motd
+        template:
+           src: motd.j2
+           dest: /etc/motd
+           owner: root
+           group: root
+           mode: '0644'
+
+      - name: /etc/issue.net is a symbolic link to /etc/issue
+        file:
+            src: /etc/issue
+            dest: /etc/issue.net
+            state: link
+            owner: root
+            group: root
+            mode: '0644'
+            force: yes
+
+      - name: copying the issue to /etc
+        copy:
+            src: files/issue
+            dest: /etc/
+            owner: root
+            group: root
+            mode: '0644'
+
+      
